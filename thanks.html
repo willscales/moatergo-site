@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoatErgo — You're on the List</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #0f1b2d;
+            --amber: #d4952a;
+            --amber-glow: rgba(212, 149, 42, 0.15);
+            --cream: #faf8f5;
+            --text: #1a1612;
+            --text-secondary: #5c534a;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: var(--text);
+            background: var(--cream);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 520px;
+        }
+
+        .logo {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--navy);
+            letter-spacing: -0.02em;
+            margin-bottom: 3rem;
+        }
+
+        .logo span {
+            color: var(--amber);
+        }
+
+        .check {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: var(--amber-glow);
+            border: 2px solid rgba(212, 149, 42, 0.3);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .check svg {
+            width: 28px;
+            height: 28px;
+            stroke: var(--amber);
+            stroke-width: 2.5;
+            fill: none;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--navy);
+            letter-spacing: -0.02em;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+        }
+
+        .note {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            opacity: 0.7;
+            margin-top: 2rem;
+        }
+
+        a {
+            color: var(--amber);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">Moat<span>Ergo</span></div>
+        <div class="check">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        </div>
+        <h1>You're on the list.</h1>
+        <p>
+            Thank you for your interest in MoatErgo. We're building something meaningful and we'll be in touch as we get closer to early access.
+        </p>
+        <p class="note">
+            <a href="/">Back to moatergo.com</a>
+        </p>
+    </div>
+</body>
+</html>

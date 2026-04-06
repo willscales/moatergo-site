@@ -987,8 +987,12 @@
             <p class="section-desc">
                 MoatErgo is currently in active development. Join the waitlist to get early access and help shape the product.
             </p>
-            <form class="signup-form" action="#" onsubmit="handleSignup(event)">
-                <input type="email" id="email" placeholder="your@email.com" required>
+            <form class="signup-form" action="https://formsubmit.co/willscales48@gmail.com" method="POST">
+                <input type="hidden" name="_subject" value="New MoatErgo Waitlist Signup">
+                <input type="hidden" name="_captcha" value="false">
+                <input type="hidden" name="_next" value="https://willscales.github.io/moatergo-site/thanks.html">
+                <input type="hidden" name="_template" value="box">
+                <input type="email" name="email" placeholder="your@email.com" required>
                 <button type="submit" class="btn btn-primary">Join Waitlist</button>
             </form>
             <p class="form-note">No spam. We'll reach out when we're ready for early testers.</p>
@@ -1022,22 +1026,6 @@
         }, { threshold: 0.15 });
 
         reveals.forEach(el => observer.observe(el));
-
-        // Signup handler (placeholder — replace with real endpoint)
-        function handleSignup(e) {
-            e.preventDefault();
-            const email = document.getElementById('email').value;
-            const btn = e.target.querySelector('button');
-            btn.textContent = 'Added!';
-            btn.style.background = '#2a7a8a';
-            document.getElementById('email').value = '';
-            setTimeout(() => {
-                btn.textContent = 'Join Waitlist';
-                btn.style.background = '';
-            }, 3000);
-            // TODO: Wire to actual email collection (Mailchimp, Buttondown, etc.)
-            console.log('Waitlist signup:', email);
-        }
 
         // Generate simulated chart bars
         (function buildChart() {
