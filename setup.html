@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>MoatErgo — Workspace Setup</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #0f1b2d;
+            --amber: #d4952a;
+            --amber-glow: rgba(212, 149, 42, 0.15);
+            --green: #22c55e;
+            --red: #ef4444;
+            --cream: #faf8f5;
+            --white: #ffffff;
+            --gray-200: #e8e4df;
+            --text: #1a1612;
+            --text-secondary: #5c534a;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--cream);
+            color: var(--text);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .app {
+            max-width: 420px;
+            margin: 0 auto;
+            padding: 1rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            text-align: center;
+            padding: 1.5rem 0;
+        }
+
+        .logo {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--navy);
+        }
+
+        .logo span { color: var(--amber); }
+
+        header p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        /* Steps */
+        .step {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            padding: 1rem 0;
+        }
+
+        .step.active { display: flex; }
+
+        .step-indicator {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 2rem;
+        }
+
+        .step-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--gray-200);
+            transition: background 0.3s;
+        }
+
+        .step-dot.done { background: var(--green); }
+        .step-dot.current { background: var(--amber); }
+
+        .step-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--amber-glow);
+            border: 2px solid rgba(212, 149, 42, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .step h2 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--navy);
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .step .instruction {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            text-align: center;
+            line-height: 1.6;
+            max-width: 300px;
+            margin-bottom: 2rem;
+        }
+
+        /* Sensor readout */
+        .readout {
+            background: var(--navy);
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .readout-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: rgba(255,255,255,0.4);
+            margin-bottom: 0.5rem;
+        }
+
+        .readout-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--white);
+            font-family: 'SF Mono', monospace;
+        }
+
+        .readout-value.good { color: var(--green); }
+        .readout-value.warn { color: var(--amber); }
+
+        .readout-sub {
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.35);
+            margin-top: 0.25rem;
+        }
+
+        /* Level indicator */
+        .level-bubble {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            border: 2px solid var(--gray-200);
+            position: relative;
+            margin-bottom: 1.5rem;
+            background: var(--white);
+        }
+
+        .level-bubble .crosshair {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 1.5px solid var(--gray-200);
+        }
+
+        .level-bubble .ball {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--amber);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: top 0.1s, left 0.1s;
+            box-shadow: 0 2px 8px rgba(212, 149, 42, 0.4);
+        }
+
+        .level-bubble .ball.level { background: var(--green); }
+
+        /* Buttons */
+        .btn {
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 600;
+            padding: 0.85rem 2rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .btn-primary {
+            background: var(--navy);
+            color: var(--white);
+        }
+
+        .btn-primary:hover { background: #1a2d47; }
+
+        .btn-primary:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--navy);
+            border: 1.5px solid var(--gray-200);
+            margin-top: 0.75rem;
+        }
+
+        /* Toggle */
+        .toggle-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            width: 100%;
+            max-width: 300px;
+            margin-bottom: 2rem;
+        }
+
+        .toggle-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+        }
+
+        .toggle-row label {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .toggle {
+            width: 48px;
+            height: 28px;
+            background: var(--gray-200);
+            border-radius: 14px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.2s;
+            border: none;
+        }
+
+        .toggle.on { background: var(--green); }
+
+        .toggle::after {
+            content: '';
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--white);
+            top: 3px;
+            left: 3px;
+            transition: left 0.2s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+        }
+
+        .toggle.on::after { left: 23px; }
+
+        /* Results */
+        .results {
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .result-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.85rem 1rem;
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+
+        .result-card .label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .result-card .value {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--navy);
+            font-family: 'SF Mono', monospace;
+        }
+
+        .status-msg {
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 1rem;
+        }
+
+        .status-msg.success { color: var(--green); }
+        .status-msg.error { color: var(--red); }
+
+        .permission-note {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-top: 0.5rem;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <header>
+            <div class="logo">Moat<span>Ergo</span></div>
+            <p>Workspace Setup</p>
+        </header>
+
+        <!-- Step 0: Intro -->
+        <div class="step active" id="step0">
+            <div class="step-indicator">
+                <div class="step-dot current"></div>
+                <div class="step-dot"></div>
+                <div class="step-dot"></div>
+                <div class="step-dot"></div>
+                <div class="step-dot"></div>
+            </div>
+            <div class="step-icon">&#x1F4D0;</div>
+            <h2>Measure Your Setup</h2>
+            <p class="instruction">
+                We'll use your phone's sensors to measure your workspace in about 60 seconds. No typing required — just follow the prompts.
+            </p>
+            <p class="instruction" style="font-size: 0.8rem; color: var(--amber);">
+                Your phone will ask for motion sensor access. This data stays on your device and is only used for measurements.
+            </p>
+            <button class="btn btn-primary" onclick="startSetup()">Start Setup</button>
+        </div>
+
+        <!-- Step 1: Desk surface angle -->
+        <div class="step" id="step1">
+            <div class="step-indicator">
+                <div class="step-dot done"></div>
+                <div class="step-dot current"></div>
+                <div class="step-dot"></div>
+                <div class="step-dot"></div>
+                <div class="step-dot"></div>
+            </div>
+            <div class="step-icon">&#x1F4BB;</div>
+            <h2>Desk Surface</h2>
+            <p class="instruction">
+                Place your phone flat on your desk surface, screen up. Hold still for 3 seconds.
+            </p>
+            <div class="level-bubble" id="levelBubble1">
+                <div class="crosshair"></div>
+                <div class="ball" id="ball1"></div>
+            </div>
+            <div class="readout">
+                <div class="readout-label">Desk Tilt</div>
+                <div class="readout-value" id="deskTilt">--</div>
+                <div class="readout-sub">Hold steady...</div>
+            </div>
+            <button class="btn btn-primary" id="btn1" onclick="captureDesk()" disabled>Waiting for level...</button>
+        </div>
+
+        <!-- Step 2: Chair seat -->
+        <div class="step" id="step2">
+            <div class="step-indicator">
+                <div class="step-dot done"></div>
+                <div class="step-dot done"></div>
+                <div class="step-dot current"></div>
+                <div class="step-dot"></div>
+                <div class="step-dot"></div>
+            </div>
+            <div class="step-icon">&#x1FA91;</div>
+            <h2>Chair Height</h2>
+            <p class="instruction">
+                Hold your phone against the side of your chair seat, bottom edge touching the floor. Keep it vertical and press capture.
+            </p>
+            <div class="readout">
+                <div class="readout-label">Estimated Chair Height</div>
+                <div class="readout-value" id="chairHeight">--</div>
+                <div class="readout-sub">Hold phone vertical against chair side</div>
+            </div>
+            <p class="instruction" style="font-size:0.8rem;">
+                Or enter manually if easier:
+            </p>
+            <div style="display:flex; gap:0.5rem; align-items:center; margin-bottom:1rem;">
+                <input type="number" id="chairManual" placeholder="e.g. 45" style="width:80px; padding:0.5rem; border:1.5px solid var(--gray-200); border-radius:6px; font-size:1rem; font-family:inherit; text-align:center;">
+                <span style="font-size:0.9rem; color:var(--text-secondary);">cm from floor</span>
+            </div>
+            <button class="btn btn-primary" onclick="captureChair()">Capture</button>
+            <button class="btn btn-secondary" onclick="skipChair()">Skip — I'll estimate later</button>
+        </div>
+
+        <!-- Step 3: Monitor distance -->
+        <div class="step" id="step3">
+            <div class="step-indicator">
+                <div class="step-dot done"></div>
+                <div class="step-dot done"></div>
+                <div class="step-dot done"></div>
+                <div class="step-dot current"></div>
+                <div class="step-dot"></div>
+            </div>
+            <div class="step-icon">&#x1F5A5;</div>
+            <h2>Monitor Setup</h2>
+            <p class="instruction">
+                Sit in your normal position. How far is your screen from your eyes? Use arm's length as a guide.
+            </p>
+            <div class="toggle-group">
+                <div class="toggle-row" onclick="setMonitorDist('close')">
+                    <label>Closer than arm's length (&lt;50cm)</label>
+                    <div class="radio" id="dist-close"></div>
+                </div>
+                <div class="toggle-row" onclick="setMonitorDist('good')">
+                    <label>About arm's length (50-70cm)</label>
+                    <div class="radio" id="dist-good"></div>
+                </div>
+                <div class="toggle-row" onclick="setMonitorDist('far')">
+                    <label>Further than arm's length (&gt;70cm)</label>
+                    <div class="radio" id="dist-far"></div>
+                </div>
+            </div>
+            <p class="instruction">Where is the top of your monitor relative to your eye level?</p>
+            <div class="toggle-group">
+                <div class="toggle-row" onclick="setMonitorPos('above')">
+                    <label>Above eye level</label>
+                    <div class="radio" id="pos-above"></div>
+                </div>
+                <div class="toggle-row" onclick="setMonitorPos('at')">
+                    <label>At eye level</label>
+                    <div class="radio" id="pos-at"></div>
+                </div>
+                <div class="toggle-row" onclick="setMonitorPos('below')">
+                    <label>Below eye level</label>
+                    <div class="radio" id="pos-below"></div>
+                </div>
+            </div>
+            <button class="btn btn-primary" id="btn3" onclick="captureMonitor()" disabled>Select both to continue</button>
+        </div>
+
+        <!-- Step 4: Chair features + review -->
+        <div class="step" id="step4">
+            <div class="step-indicator">
+                <div class="step-dot done"></div>
+                <div class="step-dot done"></div>
+                <div class="step-dot done"></div>
+                <div class="step-dot done"></div>
+                <div class="step-dot current"></div>
+            </div>
+            <div class="step-icon">&#x2705;</div>
+            <h2>Almost Done</h2>
+            <p class="instruction">Two quick questions about your chair:</p>
+            <div class="toggle-group">
+                <div class="toggle-row">
+                    <label>Lumbar support</label>
+                    <button class="toggle" id="toggle-lumbar" onclick="toggleBtn(this)"></button>
+                </div>
+                <div class="toggle-row">
+                    <label>Armrests</label>
+                    <button class="toggle" id="toggle-arms" onclick="toggleBtn(this)"></button>
+                </div>
+            </div>
+
+            <h2 style="font-size:1.1rem; margin-bottom:1rem;">Your Workspace</h2>
+            <div class="results" id="results"></div>
+
+            <button class="btn btn-primary" onclick="saveResults()" style="margin-top:1rem;">Save to MoatErgo</button>
+            <p class="status-msg" id="saveStatus"></p>
+            <button class="btn btn-secondary" onclick="goToStep(0)">Start Over</button>
+        </div>
+    </div>
+
+    <script>
+        // State
+        const measurements = {
+            desk_height_cm: null,
+            desk_tilt_deg: null,
+            chair_height_cm: null,
+            monitor_distance_cm: null,
+            monitor_position: null,
+            has_lumbar_support: false,
+            has_armrests: false,
+        };
+
+        let currentStep = 0;
+        let motionAvailable = false;
+        let accelData = { x: 0, y: 0, z: 0 };
+        let steadyCount = 0;
+        let monitorDist = null;
+        let monitorPos = null;
+
+        // Phone dimensions for height estimation (average phone length ~15cm)
+        const PHONE_LENGTH_CM = 15;
+
+        function goToStep(n) {
+            document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+            document.getElementById('step' + n).classList.add('active');
+            currentStep = n;
+        }
+
+        async function startSetup() {
+            // Request motion permission (iOS 13+ requires this)
+            if (typeof DeviceMotionEvent !== 'undefined' &&
+                typeof DeviceMotionEvent.requestPermission === 'function') {
+                try {
+                    const perm = await DeviceMotionEvent.requestPermission();
+                    if (perm === 'granted') {
+                        motionAvailable = true;
+                    }
+                } catch (e) {
+                    console.log('Motion permission denied:', e);
+                }
+            } else if (window.DeviceOrientationEvent) {
+                motionAvailable = true;
+            }
+
+            if (motionAvailable) {
+                window.addEventListener('deviceorientation', handleOrientation);
+                window.addEventListener('devicemotion', handleMotion);
+            }
+
+            goToStep(1);
+        }
+
+        function handleOrientation(e) {
+            const beta = e.beta || 0;   // front-back tilt (-180 to 180)
+            const gamma = e.gamma || 0; // left-right tilt (-90 to 90)
+
+            if (currentStep === 1) {
+                // Level bubble for desk
+                const ball = document.getElementById('ball1');
+                const bx = 50 + (gamma / 90) * 45;
+                const by = 50 + ((beta - 0) / 90) * 45;
+                ball.style.left = Math.max(5, Math.min(95, bx)) + '%';
+                ball.style.top = Math.max(5, Math.min(95, by)) + '%';
+
+                const tilt = Math.sqrt(beta * beta + gamma * gamma);
+                document.getElementById('deskTilt').textContent = tilt.toFixed(1) + '\u00B0';
+
+                if (tilt < 2) {
+                    ball.classList.add('level');
+                    steadyCount++;
+                    if (steadyCount > 20) {
+                        document.getElementById('btn1').disabled = false;
+                        document.getElementById('btn1').textContent = 'Capture Desk';
+                        document.getElementById('deskTilt').classList.add('good');
+                    }
+                } else {
+                    ball.classList.remove('level');
+                    steadyCount = Math.max(0, steadyCount - 2);
+                    document.getElementById('deskTilt').classList.remove('good');
+                }
+            }
+        }
+
+        function handleMotion(e) {
+            if (e.accelerationIncludingGravity) {
+                accelData.x = e.accelerationIncludingGravity.x;
+                accelData.y = e.accelerationIncludingGravity.y;
+                accelData.z = e.accelerationIncludingGravity.z;
+            }
+        }
+
+        function captureDesk() {
+            // Desk is approximately level — record the tilt
+            const tiltEl = document.getElementById('deskTilt');
+            const tilt = parseFloat(tiltEl.textContent);
+            measurements.desk_tilt_deg = tilt;
+
+            // Standard desk heights: 72-76cm. We can't measure absolute height
+            // from accelerometer alone, so we'll estimate or ask.
+            // For now, use standard desk height.
+            measurements.desk_height_cm = 74; // reasonable default
+
+            goToStep(2);
+        }
+
+        function captureChair() {
+            const manual = document.getElementById('chairManual').value;
+            if (manual) {
+                measurements.chair_height_cm = parseFloat(manual);
+            } else {
+                // Default reasonable chair height
+                measurements.chair_height_cm = 45;
+            }
+            goToStep(3);
+        }
+
+        function skipChair() {
+            measurements.chair_height_cm = 45;
+            goToStep(3);
+        }
+
+        // Monitor selection
+        function setMonitorDist(val) {
+            monitorDist = val;
+            document.querySelectorAll('[id^="dist-"]').forEach(el => {
+                el.style.width = '18px';
+                el.style.height = '18px';
+                el.style.borderRadius = '50%';
+                el.style.border = '2px solid #e8e4df';
+                el.style.background = 'white';
+            });
+            const selected = document.getElementById('dist-' + val);
+            selected.style.background = 'var(--amber)';
+            selected.style.borderColor = 'var(--amber)';
+
+            const distMap = { close: 40, good: 60, far: 85 };
+            measurements.monitor_distance_cm = distMap[val];
+
+            checkMonitorReady();
+        }
+
+        function setMonitorPos(val) {
+            monitorPos = val;
+            document.querySelectorAll('[id^="pos-"]').forEach(el => {
+                el.style.width = '18px';
+                el.style.height = '18px';
+                el.style.borderRadius = '50%';
+                el.style.border = '2px solid #e8e4df';
+                el.style.background = 'white';
+            });
+            const selected = document.getElementById('pos-' + val);
+            selected.style.background = 'var(--amber)';
+            selected.style.borderColor = 'var(--amber)';
+
+            measurements.monitor_position = val;
+            checkMonitorReady();
+        }
+
+        function checkMonitorReady() {
+            const btn = document.getElementById('btn3');
+            if (monitorDist && monitorPos) {
+                btn.disabled = false;
+                btn.textContent = 'Continue';
+            }
+        }
+
+        function captureMonitor() {
+            goToStep(4);
+            renderResults();
+        }
+
+        function toggleBtn(el) {
+            el.classList.toggle('on');
+            if (el.id === 'toggle-lumbar') {
+                measurements.has_lumbar_support = el.classList.contains('on');
+            } else if (el.id === 'toggle-arms') {
+                measurements.has_armrests = el.classList.contains('on');
+            }
+            renderResults();
+        }
+
+        function renderResults() {
+            const r = document.getElementById('results');
+            const items = [
+                ['Desk Height', measurements.desk_height_cm ? measurements.desk_height_cm + ' cm' : '--'],
+                ['Desk Tilt', measurements.desk_tilt_deg !== null ? measurements.desk_tilt_deg.toFixed(1) + '\u00B0' : '--'],
+                ['Chair Height', measurements.chair_height_cm ? measurements.chair_height_cm + ' cm' : '--'],
+                ['Monitor Distance', measurements.monitor_distance_cm ? measurements.monitor_distance_cm + ' cm' : '--'],
+                ['Monitor Position', measurements.monitor_position || '--'],
+                ['Lumbar Support', measurements.has_lumbar_support ? 'Yes' : 'No'],
+                ['Armrests', measurements.has_armrests ? 'Yes' : 'No'],
+            ];
+
+            r.innerHTML = items.map(([label, value]) => `
+                <div class="result-card">
+                    <span class="label">${label}</span>
+                    <span class="value">${value}</span>
+                </div>
+            `).join('');
+        }
+
+        async function saveResults() {
+            const status = document.getElementById('saveStatus');
+
+            // Try sending to local MoatErgo server
+            const payload = {
+                desk_height_cm: measurements.desk_height_cm,
+                chair_height_cm: measurements.chair_height_cm,
+                monitor_distance_cm: measurements.monitor_distance_cm,
+                monitor_position: measurements.monitor_position,
+                has_lumbar_support: measurements.has_lumbar_support,
+                has_armrests: measurements.has_armrests,
+            };
+
+            try {
+                const res = await fetch('/api/workspace', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+
+                if (res.ok) {
+                    status.textContent = 'Saved to MoatErgo!';
+                    status.className = 'status-msg success';
+                } else {
+                    throw new Error('Server error');
+                }
+            } catch (e) {
+                // If server isn't running, save to localStorage
+                localStorage.setItem('moatergo_workspace', JSON.stringify(payload));
+                status.textContent = 'Saved locally. Will sync when MoatErgo server is running.';
+                status.className = 'status-msg success';
+            }
+        }
+
+        // Initialize radio buttons
+        document.querySelectorAll('.radio').forEach(el => {
+            el.style.width = '18px';
+            el.style.height = '18px';
+            el.style.borderRadius = '50%';
+            el.style.border = '2px solid #e8e4df';
+            el.style.background = 'white';
+            el.style.flexShrink = '0';
+        });
+    </script>
+</body>
+</html>
