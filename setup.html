@@ -388,22 +388,22 @@
             <div class="step-icon">&#x1FA91;</div>
             <h2>Chair Height</h2>
             <p class="instruction">
-                Hold your phone against the side of your chair seat, bottom edge touching the floor. Keep it vertical and press capture.
+                How high is your chair seat from the floor?
             </p>
-            <div class="readout">
-                <div class="readout-label">Estimated Chair Height</div>
-                <div class="readout-value" id="chairHeight">--</div>
-                <div class="readout-sub">Hold phone vertical against chair side</div>
+            <div style="display:flex; flex-wrap:wrap; gap:0.5rem; justify-content:center; margin-bottom:1rem;">
+                <button class="btn btn-secondary" onclick="setChair(38)" style="flex:1; min-width:120px;">Low (~38 cm)</button>
+                <button class="btn btn-secondary" onclick="setChair(45)" style="flex:1; min-width:120px;">Standard (~45 cm)</button>
+                <button class="btn btn-secondary" onclick="setChair(52)" style="flex:1; min-width:120px;">High (~52 cm)</button>
             </div>
             <p class="instruction" style="font-size:0.8rem;">
-                Or enter manually if easier:
+                Or enter exact measurement:
             </p>
-            <div style="display:flex; gap:0.5rem; align-items:center; margin-bottom:1rem;">
+            <div style="display:flex; gap:0.5rem; align-items:center; justify-content:center; margin-bottom:1rem;">
                 <input type="number" id="chairManual" placeholder="e.g. 45" style="width:80px; padding:0.5rem; border:1.5px solid var(--gray-200); border-radius:6px; font-size:1rem; font-family:inherit; text-align:center;">
-                <span style="font-size:0.9rem; color:var(--text-secondary);">cm from floor</span>
+                <span style="font-size:0.9rem; color:var(--text-secondary);">cm</span>
+                <button class="btn btn-primary" onclick="captureChair()" style="margin:0;">Set</button>
             </div>
-            <button class="btn btn-primary" onclick="captureChair()">Capture</button>
-            <button class="btn btn-secondary" onclick="skipChair()">Skip — I'll estimate later</button>
+            <button class="btn btn-secondary" onclick="skipChair()">Skip</button>
         </div>
 
         <!-- Step 3: Monitor distance -->
@@ -589,12 +589,16 @@
             goToStep(2);
         }
 
+        function setChair(cm) {
+            measurements.chair_height_cm = cm;
+            goToStep(3);
+        }
+
         function captureChair() {
             const manual = document.getElementById('chairManual').value;
             if (manual) {
                 measurements.chair_height_cm = parseFloat(manual);
             } else {
-                // Default reasonable chair height
                 measurements.chair_height_cm = 45;
             }
             goToStep(3);
