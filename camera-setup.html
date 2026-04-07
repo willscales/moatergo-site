@@ -544,7 +544,7 @@
     <div class="icon-circle">&#x1F4F7;</div>
     <h2>Camera Workspace Setup</h2>
     <p>
-        Use your phone's rear camera to measure your workspace. You'll calibrate with a credit card, then measure your monitor distance, height, and screen tilt.
+        Use your phone's rear camera to measure your workspace. You'll calibrate with a sheet of paper, then measure your monitor distance, height, and screen tilt.
     </p>
     <p style="margin-top: 0.75rem; font-size: 0.82rem;">
         Takes about 2 minutes. No data leaves your device.
@@ -668,8 +668,8 @@
 
     <div class="cam-hud-top">
         <div class="cam-step-label" id="cam-step-label">Step 1 of 4 -- Calibration</div>
-        <div class="cam-instruction" id="cam-instruction">Place a credit card flat on your desk</div>
-        <div class="cam-sub-instruction" id="cam-sub">Tap the 4 corners of the card in order</div>
+        <div class="cam-instruction" id="cam-instruction">Place a sheet of paper flat on your desk</div>
+        <div class="cam-sub-instruction" id="cam-sub">Tap the 4 corners of the paper in order</div>
     </div>
 
     <div class="cam-hud-bottom">
@@ -698,22 +698,22 @@ const measurements = {
 };
 
 // Camera step state
-// Step 0: Calibration (tap 4 corners of credit card)
+// Step 0: Calibration (tap 4 corners of sheet of paper)
 // Step 1: Desk confirmation (just confirm desk is visible)
 // Step 2: Monitor distance (tap top + bottom of screen from seated eye pos)
 // Step 3: Monitor height (auto from step 2 — is center above/at/below frame center)
 const CAM_STEPS = [
     {
         label: 'Step 1 of 4 -- Calibration',
-        instruction: 'Place a credit card flat on your desk in view',
-        sub: 'Tap the 4 corners of the card, going clockwise from top-left',
+        instruction: 'Place a sheet of paper flat on your desk in view',
+        sub: 'Tap the 4 corners of the paper, going clockwise from top-left',
         tapsNeeded: 4,
         nextLabel: 'Waiting for 4 corners...',
         doneLabel: 'Confirm Calibration',
     },
     {
         label: 'Step 2 of 4 -- Desk Surface',
-        instruction: 'Keep the card visible on the desk',
+        instruction: 'Keep the paper visible on the desk',
         sub: 'Make sure the desk surface is clearly in frame, then confirm',
         tapsNeeded: 0,
         nextLabel: 'Desk is in View',
@@ -756,9 +756,9 @@ let screenDiagonalInches = null;
 let tiltReading = null;
 let motionAvailable = false;
 
-// Credit card dimensions (ISO/IEC 7810 ID-1)
-const CARD_WIDTH_MM = 85.6;
-const CARD_HEIGHT_MM = 53.98;
+// US Letter paper dimensions
+const CARD_WIDTH_MM = 279.4;
+const CARD_HEIGHT_MM = 215.9;
 const CARD_DIAGONAL_MM = Math.sqrt(CARD_WIDTH_MM * CARD_WIDTH_MM + CARD_HEIGHT_MM * CARD_HEIGHT_MM);
 
 // ----------------------------------------------------------------
@@ -898,11 +898,11 @@ function updateCamUI() {
     // Hint
     const hint = document.getElementById('cam-hint');
     if (camStep === 0) {
-        if (tapPoints.length === 0) hint.textContent = 'Tap the top-left corner of the card';
+        if (tapPoints.length === 0) hint.textContent = 'Tap the top-left corner of the paper';
         else if (tapPoints.length === 1) hint.textContent = 'Now tap the top-right corner';
         else if (tapPoints.length === 2) hint.textContent = 'Now tap the bottom-right corner';
         else if (tapPoints.length === 3) hint.textContent = 'Finally, tap the bottom-left corner';
-        else hint.textContent = 'Card corners marked. Confirm to calibrate.';
+        else hint.textContent = 'Paper corners marked. Confirm to calibrate.';
     } else if (camStep === 2) {
         if (tapPoints.length === 0) hint.textContent = 'Tap the top edge of your screen';
         else if (tapPoints.length === 1) hint.textContent = 'Now tap the bottom edge of your screen';
@@ -1088,13 +1088,13 @@ function processCalibration() {
     const ppmH = avgHeightPx / CARD_HEIGHT_MM;
     pixelsPerMm = (ppmW + ppmH) / 2;
 
-    // Estimate focal length in pixels using the card
+    // Estimate focal length in pixels using the paper
     // Pinhole model: pixel_size = focal_length * real_size / distance
-    // We don't know the exact distance to the card, but we can use the card
+    // We don't know the exact distance to the paper, but we can use the paper
     // to establish the scale factor. For the monitor distance step, we'll
     // compute distance using: distance = (actual_height_mm * focal_length_px) / apparent_height_px
     //
-    // From the card at some unknown distance D:
+    // From the paper at some unknown distance D:
     //   avgWidthPx = f * CARD_WIDTH_MM / D
     //   avgHeightPx = f * CARD_HEIGHT_MM / D
     //
@@ -1105,7 +1105,7 @@ function processCalibration() {
     //   For a sensor width of ~4.8mm and resolution of ~1920px:
     //   f_px = 26mm * (1920 / 4.8mm) ~= ... but this varies a lot.
     //
-    // Better approach: use the card measurement to estimate focal length.
+    // Better approach: use the paper measurement to estimate focal length.
     // If user holds the phone about 30cm from desk (typical), then:
     //   f_px = avgWidthPx * estimated_distance / CARD_WIDTH_MM
     // We'll ask user to hold phone at roughly arm's distance (~30cm) or
