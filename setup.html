@@ -13,6 +13,7 @@
             --amber: #d4952a;
             --amber-glow: rgba(212, 149, 42, 0.15);
             --green: #22c55e;
+            --yellow: #eab308;
             --red: #ef4444;
             --cream: #faf8f5;
             --white: #ffffff;
@@ -145,12 +146,17 @@
 
         .readout-value.good { color: var(--green); }
         .readout-value.warn { color: var(--amber); }
+        .readout-value.bad { color: var(--red); }
 
         .readout-sub {
             font-size: 0.7rem;
             color: rgba(255,255,255,0.35);
             margin-top: 0.25rem;
         }
+
+        .readout-sub.good { color: rgba(34, 197, 94, 0.7); }
+        .readout-sub.warn { color: rgba(234, 179, 8, 0.7); }
+        .readout-sub.bad { color: rgba(239, 68, 68, 0.7); }
 
         /* Level indicator */
         .level-bubble {
@@ -189,6 +195,59 @@
 
         .level-bubble .ball.level { background: var(--green); }
 
+        /* Tilt gauge for screen angle */
+        .tilt-gauge {
+            width: 200px;
+            height: 120px;
+            position: relative;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+
+        .tilt-gauge-arc {
+            width: 200px;
+            height: 200px;
+            border: 3px solid var(--gray-200);
+            border-radius: 50%;
+            position: absolute;
+            bottom: -80px;
+        }
+
+        .tilt-gauge-zone {
+            position: absolute;
+            bottom: -80px;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            /* green zone from 0-20 degrees */
+            border-top-color: rgba(34, 197, 94, 0.3);
+        }
+
+        .tilt-gauge-needle {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            width: 3px;
+            height: 80px;
+            background: var(--amber);
+            transform-origin: bottom center;
+            transform: translateX(-50%) rotate(0deg);
+            border-radius: 2px;
+            transition: transform 0.15s;
+        }
+
+        .tilt-gauge-center {
+            position: absolute;
+            bottom: 14px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--navy);
+        }
+
         /* Buttons */
         .btn {
             font-family: inherit;
@@ -222,6 +281,24 @@
             margin-top: 0.75rem;
         }
 
+        .btn-preset {
+            background: var(--white);
+            color: var(--navy);
+            border: 1.5px solid var(--gray-200);
+            padding: 0.7rem 1rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .btn-preset.selected {
+            border-color: var(--amber);
+            background: var(--amber-glow);
+        }
+
         /* Toggle */
         .toggle-group {
             display: flex;
@@ -240,11 +317,19 @@
             background: var(--white);
             border: 1px solid var(--gray-200);
             border-radius: 8px;
+            cursor: pointer;
         }
 
         .toggle-row label {
             font-size: 0.9rem;
             font-weight: 500;
+        }
+
+        .toggle-row .sublabel {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            margin-top: 0.15rem;
         }
 
         .toggle {
@@ -297,11 +382,56 @@
             color: var(--text-secondary);
         }
 
+        .result-card .value-wrap {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
         .result-card .value {
             font-size: 0.95rem;
             font-weight: 600;
             color: var(--navy);
             font-family: 'SF Mono', monospace;
+        }
+
+        .result-card .indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .indicator.green { background: var(--green); }
+        .indicator.yellow { background: var(--yellow); }
+        .indicator.red { background: var(--red); }
+
+        .recommendation-box {
+            background: var(--white);
+            border: 1.5px solid var(--gray-200);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .recommendation-box h3 {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--navy);
+            margin-bottom: 0.5rem;
+        }
+
+        .recommendation-box p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .recommendation-box .rec-icon {
+            font-size: 1.1rem;
+            margin-right: 0.3rem;
         }
 
         .status-msg {
@@ -321,6 +451,14 @@
             margin-top: 0.5rem;
             line-height: 1.5;
         }
+
+        .iso-note {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-top: 0.25rem;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -338,11 +476,13 @@
                 <div class="step-dot"></div>
                 <div class="step-dot"></div>
                 <div class="step-dot"></div>
+                <div class="step-dot"></div>
+                <div class="step-dot"></div>
             </div>
             <div class="step-icon">&#x1F4D0;</div>
             <h2>Measure Your Setup</h2>
             <p class="instruction">
-                We'll use your phone's sensors to measure your workspace in about 60 seconds. No typing required — just follow the prompts.
+                We'll use your phone's sensors to measure your workspace in about 90 seconds. No typing required — just follow the prompts.
             </p>
             <p class="instruction" style="font-size: 0.8rem; color: var(--amber);">
                 Your phone will ask for motion sensor access. This data stays on your device and is only used for measurements.
@@ -350,11 +490,13 @@
             <button class="btn btn-primary" onclick="startSetup()">Start Setup</button>
         </div>
 
-        <!-- Step 1: Desk surface angle -->
+        <!-- Step 1: Desk surface angle (accelerometer) -->
         <div class="step" id="step1">
             <div class="step-indicator">
                 <div class="step-dot done"></div>
                 <div class="step-dot current"></div>
+                <div class="step-dot"></div>
+                <div class="step-dot"></div>
                 <div class="step-dot"></div>
                 <div class="step-dot"></div>
                 <div class="step-dot"></div>
@@ -376,12 +518,52 @@
             <button class="btn btn-primary" id="btn1" onclick="captureDesk()" disabled>Waiting for level...</button>
         </div>
 
-        <!-- Step 2: Chair seat -->
+        <!-- Step 2: Desk height -->
         <div class="step" id="step2">
             <div class="step-indicator">
                 <div class="step-dot done"></div>
                 <div class="step-dot done"></div>
                 <div class="step-dot current"></div>
+                <div class="step-dot"></div>
+                <div class="step-dot"></div>
+                <div class="step-dot"></div>
+                <div class="step-dot"></div>
+            </div>
+            <div class="step-icon">&#x1F4CF;</div>
+            <h2>Desk Height</h2>
+            <p class="instruction">
+                How high is your desk surface from the floor? This is critical for ergonomic assessment.
+            </p>
+            <div style="display:flex; flex-direction:column; gap:0.5rem; width:100%; max-width:300px; margin-bottom:1.5rem;">
+                <button class="btn-preset" onclick="setDeskHeight(110, this)">
+                    Standing Desk (~110 cm)
+                </button>
+                <button class="btn-preset" onclick="setDeskHeight(73, this)">
+                    Standard Desk (~73 cm)
+                </button>
+                <button class="btn-preset" onclick="setDeskHeight(65, this)">
+                    Low Desk (~65 cm)
+                </button>
+            </div>
+            <p class="instruction" style="font-size:0.8rem; margin-bottom:0.75rem;">
+                Or enter exact measurement:
+            </p>
+            <div style="display:flex; gap:0.5rem; align-items:center; justify-content:center; margin-bottom:1rem;">
+                <input type="number" id="deskHeightManual" placeholder="e.g. 73" style="width:80px; padding:0.5rem; border:1.5px solid var(--gray-200); border-radius:6px; font-size:1rem; font-family:inherit; text-align:center;">
+                <span style="font-size:0.9rem; color:var(--text-secondary);">cm</span>
+                <button class="btn btn-primary" onclick="captureDeskHeight()" style="width:auto; padding:0.5rem 1rem;">Set</button>
+            </div>
+            <p class="iso-note">ISO 9241-5 recommends 65-75 cm for seated work</p>
+        </div>
+
+        <!-- Step 3: Chair seat -->
+        <div class="step" id="step3">
+            <div class="step-indicator">
+                <div class="step-dot done"></div>
+                <div class="step-dot done"></div>
+                <div class="step-dot done"></div>
+                <div class="step-dot current"></div>
+                <div class="step-dot"></div>
                 <div class="step-dot"></div>
                 <div class="step-dot"></div>
             </div>
@@ -390,50 +572,62 @@
             <p class="instruction">
                 How high is your chair seat from the floor?
             </p>
-            <div style="display:flex; flex-wrap:wrap; gap:0.5rem; justify-content:center; margin-bottom:1rem;">
-                <button class="btn btn-secondary" onclick="setChair(38)" style="flex:1; min-width:120px;">Low (~38 cm)</button>
-                <button class="btn btn-secondary" onclick="setChair(45)" style="flex:1; min-width:120px;">Standard (~45 cm)</button>
-                <button class="btn btn-secondary" onclick="setChair(52)" style="flex:1; min-width:120px;">High (~52 cm)</button>
+            <div style="display:flex; flex-wrap:wrap; gap:0.5rem; justify-content:center; margin-bottom:1rem; max-width:300px;">
+                <button class="btn-preset" onclick="setChair(38, this)" style="flex:1; min-width:120px;">Low (~38 cm)</button>
+                <button class="btn-preset" onclick="setChair(45, this)" style="flex:1; min-width:120px;">Standard (~45 cm)</button>
+                <button class="btn-preset" onclick="setChair(52, this)" style="flex:1; min-width:120px;">High (~52 cm)</button>
             </div>
-            <p class="instruction" style="font-size:0.8rem;">
+            <p class="instruction" style="font-size:0.8rem; margin-bottom:0.75rem;">
                 Or enter exact measurement:
             </p>
             <div style="display:flex; gap:0.5rem; align-items:center; justify-content:center; margin-bottom:1rem;">
                 <input type="number" id="chairManual" placeholder="e.g. 45" style="width:80px; padding:0.5rem; border:1.5px solid var(--gray-200); border-radius:6px; font-size:1rem; font-family:inherit; text-align:center;">
                 <span style="font-size:0.9rem; color:var(--text-secondary);">cm</span>
-                <button class="btn btn-primary" onclick="captureChair()" style="margin:0;">Set</button>
+                <button class="btn btn-primary" onclick="captureChair()" style="width:auto; padding:0.5rem 1rem;">Set</button>
             </div>
             <button class="btn btn-secondary" onclick="skipChair()">Skip</button>
         </div>
 
-        <!-- Step 3: Monitor distance -->
-        <div class="step" id="step3">
+        <!-- Step 4: Monitor distance + position -->
+        <div class="step" id="step4">
             <div class="step-indicator">
+                <div class="step-dot done"></div>
                 <div class="step-dot done"></div>
                 <div class="step-dot done"></div>
                 <div class="step-dot done"></div>
                 <div class="step-dot current"></div>
                 <div class="step-dot"></div>
+                <div class="step-dot"></div>
             </div>
             <div class="step-icon">&#x1F5A5;</div>
             <h2>Monitor Setup</h2>
             <p class="instruction">
-                Sit in your normal position. How far is your screen from your eyes? Use arm's length as a guide.
+                Sit in your normal position. How far is your screen from your eyes?
             </p>
             <div class="toggle-group">
                 <div class="toggle-row" onclick="setMonitorDist('close')">
-                    <label>Closer than arm's length (&lt;50cm)</label>
+                    <div>
+                        <label>Closer than arm's length</label>
+                        <div class="sublabel">~40 cm / 16 in</div>
+                    </div>
                     <div class="radio" id="dist-close"></div>
                 </div>
                 <div class="toggle-row" onclick="setMonitorDist('good')">
-                    <label>About arm's length (50-70cm)</label>
+                    <div>
+                        <label>About arm's length</label>
+                        <div class="sublabel">~55 cm / 22 in</div>
+                    </div>
                     <div class="radio" id="dist-good"></div>
                 </div>
                 <div class="toggle-row" onclick="setMonitorDist('far')">
-                    <label>Further than arm's length (&gt;70cm)</label>
+                    <div>
+                        <label>Further than arm's length</label>
+                        <div class="sublabel">~70 cm / 28 in</div>
+                    </div>
                     <div class="radio" id="dist-far"></div>
                 </div>
             </div>
+            <p class="iso-note" style="margin-top:-1rem; margin-bottom:1.5rem;">ISO 9241-5 recommends 50-70 cm viewing distance</p>
             <p class="instruction">Where is the top of your monitor relative to your eye level?</p>
             <div class="toggle-group">
                 <div class="toggle-row" onclick="setMonitorPos('above')">
@@ -449,12 +643,53 @@
                     <div class="radio" id="pos-below"></div>
                 </div>
             </div>
-            <button class="btn btn-primary" id="btn3" onclick="captureMonitor()" disabled>Select both to continue</button>
+            <button class="btn btn-primary" id="btn4" onclick="captureMonitor()" disabled>Select both to continue</button>
         </div>
 
-        <!-- Step 4: Chair features + review -->
-        <div class="step" id="step4">
+        <!-- Step 5: Screen tilt angle (accelerometer) -->
+        <div class="step" id="step5">
             <div class="step-indicator">
+                <div class="step-dot done"></div>
+                <div class="step-dot done"></div>
+                <div class="step-dot done"></div>
+                <div class="step-dot done"></div>
+                <div class="step-dot done"></div>
+                <div class="step-dot current"></div>
+                <div class="step-dot"></div>
+            </div>
+            <div class="step-icon">&#x1F4F1;</div>
+            <h2>Screen Tilt Angle</h2>
+            <p class="instruction">
+                Hold your phone flat against your laptop screen or monitor (phone back touching the screen). The sensor will measure the tilt.
+            </p>
+            <div class="readout">
+                <div class="readout-label">Screen Tilt from Vertical</div>
+                <div class="readout-value" id="screenTilt">--</div>
+                <div class="readout-sub" id="screenTiltStatus">Hold phone against screen...</div>
+            </div>
+            <div style="width:100%; max-width:300px; margin-bottom:1rem;">
+                <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:var(--text-secondary); margin-bottom:0.25rem;">
+                    <span>0 (vertical)</span>
+                    <span style="color:var(--green);">0-20 ideal</span>
+                    <span>45+</span>
+                </div>
+                <div style="height:8px; background:var(--gray-200); border-radius:4px; overflow:hidden; position:relative;">
+                    <div style="position:absolute; left:0; width:44%; height:100%; background:rgba(34,197,94,0.3);"></div>
+                    <div style="position:absolute; left:44%; width:22%; height:100%; background:rgba(234,179,8,0.3);"></div>
+                    <div style="position:absolute; left:66%; width:34%; height:100%; background:rgba(239,68,68,0.2);"></div>
+                    <div id="tiltMarker" style="position:absolute; left:0%; top:-2px; width:4px; height:12px; background:var(--navy); border-radius:2px; transition:left 0.15s;"></div>
+                </div>
+            </div>
+            <p class="iso-note" style="margin-bottom:1.5rem;">ISO 9241-5 recommends 0-20 degrees back from vertical</p>
+            <button class="btn btn-primary" id="btn5" onclick="captureScreenTilt()">Capture Angle</button>
+            <button class="btn btn-secondary" onclick="skipScreenTilt()">Skip</button>
+        </div>
+
+        <!-- Step 6: Chair features + review -->
+        <div class="step" id="step6">
+            <div class="step-indicator">
+                <div class="step-dot done"></div>
+                <div class="step-dot done"></div>
                 <div class="step-dot done"></div>
                 <div class="step-dot done"></div>
                 <div class="step-dot done"></div>
@@ -475,8 +710,10 @@
                 </div>
             </div>
 
-            <h2 style="font-size:1.1rem; margin-bottom:1rem;">Your Workspace</h2>
+            <h2 style="font-size:1.1rem; margin-bottom:0.75rem;">Your Workspace</h2>
             <div class="results" id="results"></div>
+
+            <div id="recommendations" style="margin-top:1rem; width:100%; max-width:300px;"></div>
 
             <button class="btn btn-primary" onclick="saveResults()" style="margin-top:1rem;">Save to MoatErgo</button>
             <p class="status-msg" id="saveStatus"></p>
@@ -492,6 +729,7 @@
             chair_height_cm: null,
             monitor_distance_cm: null,
             monitor_position: null,
+            screen_tilt_deg: null,
             has_lumbar_support: false,
             has_armrests: false,
         };
@@ -502,9 +740,8 @@
         let steadyCount = 0;
         let monitorDist = null;
         let monitorPos = null;
-
-        // Phone dimensions for height estimation (average phone length ~15cm)
-        const PHONE_LENGTH_CM = 15;
+        let screenTiltReading = null;
+        let screenTiltStable = 0;
 
         function goToStep(n) {
             document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
@@ -565,6 +802,52 @@
                     document.getElementById('deskTilt').classList.remove('good');
                 }
             }
+
+            if (currentStep === 5) {
+                // Screen tilt measurement
+                // When phone is held against screen (back of phone on screen):
+                // beta ~ 90 means vertical, beta < 90 means tilted back
+                // Screen tilt from vertical = 90 - beta (when beta is between 0 and 90)
+                // For phone held portrait against screen:
+                let tiltFromVertical;
+                if (beta >= 0 && beta <= 180) {
+                    tiltFromVertical = Math.abs(90 - beta);
+                } else {
+                    tiltFromVertical = Math.abs(90 - Math.abs(beta));
+                }
+                // Account for gamma (side lean) to be more accurate
+                tiltFromVertical = Math.max(0, tiltFromVertical);
+
+                screenTiltReading = tiltFromVertical;
+
+                const tiltEl = document.getElementById('screenTilt');
+                const statusEl = document.getElementById('screenTiltStatus');
+                const markerEl = document.getElementById('tiltMarker');
+
+                tiltEl.textContent = tiltFromVertical.toFixed(1) + '\u00B0';
+
+                // Update marker position (0-45 mapped to 0-100%)
+                const markerPct = Math.min(100, (tiltFromVertical / 45) * 100);
+                markerEl.style.left = markerPct + '%';
+
+                // Color feedback
+                if (tiltFromVertical <= 20) {
+                    tiltEl.className = 'readout-value good';
+                    statusEl.textContent = 'Good range (0-20\u00B0)';
+                    statusEl.className = 'readout-sub good';
+                    screenTiltStable++;
+                } else if (tiltFromVertical <= 30) {
+                    tiltEl.className = 'readout-value warn';
+                    statusEl.textContent = 'Slightly tilted \u2014 consider adjusting';
+                    statusEl.className = 'readout-sub warn';
+                    screenTiltStable++;
+                } else {
+                    tiltEl.className = 'readout-value bad';
+                    statusEl.textContent = 'Too tilted \u2014 may cause neck strain';
+                    statusEl.className = 'readout-sub bad';
+                    screenTiltStable++;
+                }
+            }
         }
 
         function handleMotion(e) {
@@ -576,22 +859,38 @@
         }
 
         function captureDesk() {
-            // Desk is approximately level — record the tilt
+            // Desk is approximately level - record the tilt
             const tiltEl = document.getElementById('deskTilt');
             const tilt = parseFloat(tiltEl.textContent);
             measurements.desk_tilt_deg = tilt;
-
-            // Standard desk heights: 72-76cm. We can't measure absolute height
-            // from accelerometer alone, so we'll estimate or ask.
-            // For now, use standard desk height.
-            measurements.desk_height_cm = 74; // reasonable default
-
             goToStep(2);
         }
 
-        function setChair(cm) {
-            measurements.chair_height_cm = cm;
+        // Desk height
+        function setDeskHeight(cm, btnEl) {
+            measurements.desk_height_cm = cm;
+            // Highlight selected preset
+            document.querySelectorAll('#step2 .btn-preset').forEach(b => b.classList.remove('selected'));
+            if (btnEl) btnEl.classList.add('selected');
+            document.getElementById('deskHeightManual').value = '';
             goToStep(3);
+        }
+
+        function captureDeskHeight() {
+            const manual = document.getElementById('deskHeightManual').value;
+            if (manual && parseFloat(manual) > 0) {
+                measurements.desk_height_cm = parseFloat(manual);
+                goToStep(3);
+            }
+        }
+
+        // Chair height
+        function setChair(cm, btnEl) {
+            measurements.chair_height_cm = cm;
+            document.querySelectorAll('#step3 .btn-preset').forEach(b => b.classList.remove('selected'));
+            if (btnEl) btnEl.classList.add('selected');
+            document.getElementById('chairManual').value = '';
+            goToStep(4);
         }
 
         function captureChair() {
@@ -601,12 +900,12 @@
             } else {
                 measurements.chair_height_cm = 45;
             }
-            goToStep(3);
+            goToStep(4);
         }
 
         function skipChair() {
             measurements.chair_height_cm = 45;
-            goToStep(3);
+            goToStep(4);
         }
 
         // Monitor selection
@@ -623,7 +922,7 @@
             selected.style.background = 'var(--amber)';
             selected.style.borderColor = 'var(--amber)';
 
-            const distMap = { close: 40, good: 60, far: 85 };
+            const distMap = { close: 40, good: 55, far: 70 };
             measurements.monitor_distance_cm = distMap[val];
 
             checkMonitorReady();
@@ -647,7 +946,7 @@
         }
 
         function checkMonitorReady() {
-            const btn = document.getElementById('btn3');
+            const btn = document.getElementById('btn4');
             if (monitorDist && monitorPos) {
                 btn.disabled = false;
                 btn.textContent = 'Continue';
@@ -655,7 +954,21 @@
         }
 
         function captureMonitor() {
-            goToStep(4);
+            goToStep(5);
+        }
+
+        // Screen tilt
+        function captureScreenTilt() {
+            if (screenTiltReading !== null) {
+                measurements.screen_tilt_deg = Math.round(screenTiltReading * 10) / 10;
+            }
+            goToStep(6);
+            renderResults();
+        }
+
+        function skipScreenTilt() {
+            measurements.screen_tilt_deg = null;
+            goToStep(6);
             renderResults();
         }
 
@@ -669,35 +982,194 @@
             renderResults();
         }
 
+        // Ergonomic assessment helpers
+        function assessDeskHeight(cm) {
+            if (cm === null) return { color: 'yellow', note: 'Not measured' };
+            // Standing desk range
+            if (cm >= 95) {
+                // Standing desk: 100-120 cm is good
+                if (cm >= 100 && cm <= 120) return { color: 'green', note: 'Good for standing' };
+                return { color: 'yellow', note: 'Check standing height' };
+            }
+            // Seated desk: ISO 9241-5 recommends 65-75 cm
+            if (cm >= 65 && cm <= 75) return { color: 'green', note: 'ISO recommended range' };
+            if (cm >= 60 && cm <= 80) return { color: 'yellow', note: 'Slightly outside ideal' };
+            return { color: 'red', note: 'Outside recommended range' };
+        }
+
+        function assessDeskTilt(deg) {
+            if (deg === null) return { color: 'yellow', note: 'Not measured' };
+            if (deg <= 2) return { color: 'green', note: 'Level' };
+            if (deg <= 5) return { color: 'yellow', note: 'Slight tilt' };
+            return { color: 'red', note: 'Significant tilt' };
+        }
+
+        function assessChairHeight(chairCm, deskCm) {
+            if (chairCm === null) return { color: 'yellow', note: 'Not measured' };
+            // Ideal: desk - chair = 27-30 cm (elbow height difference)
+            if (deskCm !== null) {
+                const diff = deskCm - chairCm;
+                if (diff >= 25 && diff <= 33) return { color: 'green', note: 'Good desk-chair ratio' };
+                if (diff >= 20 && diff <= 37) return { color: 'yellow', note: 'Adjust for elbow comfort' };
+                return { color: 'red', note: 'Poor desk-chair ratio' };
+            }
+            // Without desk height, check absolute
+            if (chairCm >= 40 && chairCm <= 52) return { color: 'green', note: 'Standard range' };
+            return { color: 'yellow', note: 'Check with desk height' };
+        }
+
+        function assessMonitorDist(cm) {
+            if (cm === null) return { color: 'yellow', note: 'Not measured' };
+            // ISO 9241-5: 50-70 cm
+            if (cm >= 50 && cm <= 70) return { color: 'green', note: 'ISO recommended' };
+            if (cm >= 40 && cm <= 80) return { color: 'yellow', note: 'Acceptable' };
+            return { color: 'red', note: 'Outside recommended range' };
+        }
+
+        function assessMonitorPos(pos) {
+            if (!pos) return { color: 'yellow', note: 'Not measured' };
+            if (pos === 'at') return { color: 'green', note: 'Ideal position' };
+            if (pos === 'below') return { color: 'yellow', note: 'OK for laptops' };
+            return { color: 'red', note: 'Lower your monitor' };
+        }
+
+        function assessScreenTilt(deg) {
+            if (deg === null) return { color: 'yellow', note: 'Not measured' };
+            // ISO 9241-5: 0-20 degrees back from vertical
+            if (deg <= 20) return { color: 'green', note: 'ISO recommended' };
+            if (deg <= 30) return { color: 'yellow', note: 'Slightly tilted' };
+            return { color: 'red', note: 'Too much tilt' };
+        }
+
+        function getScreenAngleRecommendation() {
+            const tilt = measurements.screen_tilt_deg;
+            const pos = measurements.monitor_position;
+            const dist = measurements.monitor_distance_cm;
+
+            let recs = [];
+
+            // Screen tilt recommendation
+            if (tilt !== null) {
+                if (tilt <= 20) {
+                    recs.push({ icon: '\u2705', text: 'Your screen tilt of ' + tilt.toFixed(1) + '\u00B0 is within the ISO 9241-5 recommended range (0-20\u00B0 back from vertical).' });
+                } else {
+                    const adjust = Math.round(tilt - 15); // aim for middle of range
+                    recs.push({ icon: '\u26A0\uFE0F', text: 'Try tilting your screen back ~' + adjust + '\u00B0 less. Current tilt: ' + tilt.toFixed(1) + '\u00B0, recommended: 0-20\u00B0 (ISO 9241-5).' });
+                }
+            }
+
+            // Combined position + tilt advice
+            if (pos === 'above') {
+                recs.push({ icon: '\u26A0\uFE0F', text: 'Your monitor top is above eye level. Lower it so the top edge is at or just below eye height to reduce neck strain.' });
+                if (tilt !== null && tilt < 5) {
+                    recs.push({ icon: '\u{1F4A1}', text: 'With a high monitor, tilting the screen back 5-15\u00B0 can help reduce upward gaze angle.' });
+                }
+            } else if (pos === 'below' && tilt !== null && tilt > 20) {
+                recs.push({ icon: '\u{1F4A1}', text: 'With a low monitor and high tilt, you may be bending your neck down. Try raising the monitor and reducing tilt.' });
+            }
+
+            // Distance advice
+            if (dist !== null) {
+                if (dist < 50) {
+                    recs.push({ icon: '\u26A0\uFE0F', text: 'Your screen is closer than the ISO 9241-5 recommended 50-70 cm. Try moving it back to reduce eye strain.' });
+                } else if (dist > 70) {
+                    recs.push({ icon: '\u{1F4A1}', text: 'Your screen is a bit far. If you find yourself leaning forward, move it closer to 55-65 cm.' });
+                }
+            }
+
+            // Desk-chair ratio
+            if (measurements.desk_height_cm && measurements.chair_height_cm) {
+                const diff = measurements.desk_height_cm - measurements.chair_height_cm;
+                if (diff < 25) {
+                    recs.push({ icon: '\u26A0\uFE0F', text: 'Your desk may be too low relative to your chair (only ' + Math.round(diff) + ' cm difference). Aim for 27-30 cm for comfortable elbow position.' });
+                } else if (diff > 33) {
+                    recs.push({ icon: '\u26A0\uFE0F', text: 'Your desk may be too high relative to your chair (' + Math.round(diff) + ' cm difference). Aim for 27-30 cm. Try raising your chair or lowering the desk.' });
+                }
+            }
+
+            if (recs.length === 0) {
+                recs.push({ icon: '\u2705', text: 'Complete more measurements to get personalized recommendations.' });
+            }
+
+            return recs;
+        }
+
         function renderResults() {
             const r = document.getElementById('results');
             const items = [
-                ['Desk Height', measurements.desk_height_cm ? measurements.desk_height_cm + ' cm' : '--'],
-                ['Desk Tilt', measurements.desk_tilt_deg !== null ? measurements.desk_tilt_deg.toFixed(1) + '\u00B0' : '--'],
-                ['Chair Height', measurements.chair_height_cm ? measurements.chair_height_cm + ' cm' : '--'],
-                ['Monitor Distance', measurements.monitor_distance_cm ? measurements.monitor_distance_cm + ' cm' : '--'],
-                ['Monitor Position', measurements.monitor_position || '--'],
-                ['Lumbar Support', measurements.has_lumbar_support ? 'Yes' : 'No'],
-                ['Armrests', measurements.has_armrests ? 'Yes' : 'No'],
+                {
+                    label: 'Desk Height',
+                    value: measurements.desk_height_cm ? measurements.desk_height_cm + ' cm' : '--',
+                    assessment: assessDeskHeight(measurements.desk_height_cm),
+                },
+                {
+                    label: 'Desk Tilt',
+                    value: measurements.desk_tilt_deg !== null ? measurements.desk_tilt_deg.toFixed(1) + '\u00B0' : '--',
+                    assessment: assessDeskTilt(measurements.desk_tilt_deg),
+                },
+                {
+                    label: 'Chair Height',
+                    value: measurements.chair_height_cm ? measurements.chair_height_cm + ' cm' : '--',
+                    assessment: assessChairHeight(measurements.chair_height_cm, measurements.desk_height_cm),
+                },
+                {
+                    label: 'Monitor Distance',
+                    value: measurements.monitor_distance_cm ? '~' + measurements.monitor_distance_cm + ' cm' : '--',
+                    assessment: assessMonitorDist(measurements.monitor_distance_cm),
+                },
+                {
+                    label: 'Monitor Position',
+                    value: measurements.monitor_position ? measurements.monitor_position.charAt(0).toUpperCase() + measurements.monitor_position.slice(1) + ' eye level' : '--',
+                    assessment: assessMonitorPos(measurements.monitor_position),
+                },
+                {
+                    label: 'Screen Tilt',
+                    value: measurements.screen_tilt_deg !== null ? measurements.screen_tilt_deg.toFixed(1) + '\u00B0' : '--',
+                    assessment: assessScreenTilt(measurements.screen_tilt_deg),
+                },
+                {
+                    label: 'Lumbar Support',
+                    value: measurements.has_lumbar_support ? 'Yes' : 'No',
+                    assessment: { color: measurements.has_lumbar_support ? 'green' : 'yellow', note: '' },
+                },
+                {
+                    label: 'Armrests',
+                    value: measurements.has_armrests ? 'Yes' : 'No',
+                    assessment: { color: measurements.has_armrests ? 'green' : 'yellow', note: '' },
+                },
             ];
 
-            r.innerHTML = items.map(([label, value]) => `
+            r.innerHTML = items.map(item => `
                 <div class="result-card">
-                    <span class="label">${label}</span>
-                    <span class="value">${value}</span>
+                    <span class="label">${item.label}</span>
+                    <span class="value-wrap">
+                        <span class="value">${item.value}</span>
+                        <span class="indicator ${item.assessment.color}" title="${item.assessment.note}"></span>
+                    </span>
                 </div>
             `).join('');
+
+            // Render recommendations
+            const recDiv = document.getElementById('recommendations');
+            const recs = getScreenAngleRecommendation();
+            recDiv.innerHTML = `
+                <div class="recommendation-box">
+                    <h3>Ergonomic Recommendations</h3>
+                    ${recs.map(r => `<p style="margin-bottom:0.5rem;"><span class="rec-icon">${r.icon}</span> ${r.text}</p>`).join('')}
+                </div>
+            `;
         }
 
         async function saveResults() {
             const status = document.getElementById('saveStatus');
 
-            // Try sending to local MoatErgo server
             const payload = {
                 desk_height_cm: measurements.desk_height_cm,
+                desk_tilt_deg: measurements.desk_tilt_deg,
                 chair_height_cm: measurements.chair_height_cm,
                 monitor_distance_cm: measurements.monitor_distance_cm,
                 monitor_position: measurements.monitor_position,
+                screen_tilt_deg: measurements.screen_tilt_deg,
                 has_lumbar_support: measurements.has_lumbar_support,
                 has_armrests: measurements.has_armrests,
             };
