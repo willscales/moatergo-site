@@ -1,0 +1,24 @@
+# moatergo.com — defensive robots policy.
+# Site is in pre-launch / pre-patent-filing state. We do not want any
+# crawler or archiver indexing, caching, or snapshotting any page on
+# this domain until that posture changes intentionally.
+
+User-agent: *
+Disallow: /
+
+# Pages that previously existed and were removed on 2026-05-04. Listed
+# explicitly so any crawler that still has them queued treats them as
+# disallowed, in addition to receiving HTTP 404.
+# /setup.html
+# /ar-setup.html
+# /camera-setup.html
+
+# Block the Internet Archive specifically. (Honored by ia_archiver.)
+User-agent: ia_archiver
+Disallow: /
+
+User-agent: archive.org_bot
+Disallow: /
+
+User-agent: Wayback
+Disallow: /
